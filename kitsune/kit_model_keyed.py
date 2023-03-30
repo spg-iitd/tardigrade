@@ -3,6 +3,7 @@ import utils
 import operator
 import torchdata.datapipes.iter as it
 from models import Kitsune
+from FeatureExtractor import FE
 from data import FileFormat, build_input_data_pipe
 from engine import build_feature_mapper, train_single_epoch, predict
 
@@ -12,6 +13,24 @@ class KitModel:
         self.model = None
         self.optimizer = None
         self.dp = None
+
+    # extract features
+    def extract_features(self, data_path, output_path):
+        fe = FE(data_path)
+        count = 0
+        with open(output_path, "w") as f:
+            while True:
+                fv = fe.get_next_vector()
+                if len(fv) == 0:
+                    break
+                fv = [str(x) for x in fv]
+                f.write(",".join(fv) + "\n")
+                count = count+1
+
+                if count%100000 == 0:
+                    print("Processed {} packets".format(count))
+
+        f.close()
 
     # Generate Data
     def gen_dp(self, data_path):
@@ -77,7 +96,7 @@ if __name__ == "__main__":
     # # Extract features
     # print("Extracting features")
     # model = KitModel()
-    utils.extract_features("Data/traffic.tsv", "Data/traffic.csv")
+    # model.extract_features("Data/traffic.tsv", "Data/traffic.csv")
 
     # Train model on "../Data/traffic.csv"
     print("Training model on " + data)
