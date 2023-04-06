@@ -36,7 +36,22 @@ def extract_features(data_path, output_path):
 
 
 
-def transform_features():
-    key = generate_key(32)
-    t = Transformation("1", key)
+def transform_features(data_path, output_path):
+    inputf = open(data_path, "r")
+    outputf = open(output_path, "w")
+
+    key = generate_key(64)
+    T = Transformation("1", key)
+    
+    while True:
+        line = inputf.readline()
+        if len(line) == 0:
+            break
+        fv = [float(x) for x in line.split(",")]
+        fv = T.transform(fv)
+        outputf.write(",".join([str(x) for x in fv]) + "\n")
+
+    inputf.close()
+    outputf.close()
+    
 
