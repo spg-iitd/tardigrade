@@ -1,6 +1,6 @@
 # extract features
-from FeatureExtractor import FE
-from Transformation import Transformation, generate_key
+from .FeatureExtractor import FE
+from .transformation import Transformation, generate_key
 import os
 
 #pcap file to features tsv using wireshark

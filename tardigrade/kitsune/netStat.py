@@ -4,7 +4,7 @@ import os
 import subprocess
 # import pyximport
 # pyximport.install()
-import AfterImage as af
+from .AfterImage import *
 #import AfterImage_NDSS as af
 
 #
@@ -49,10 +49,10 @@ class netStat:
         self.MAC_HostLimit = self.HostLimit*10
 
         #HTs
-        self.HT_jit = af.incStatDB(limit=self.HostLimit*self.HostLimit)#H-H Jitter Stats
-        self.HT_MI = af.incStatDB(limit=self.MAC_HostLimit)#MAC-IP relationships
-        self.HT_H = af.incStatDB(limit=self.HostLimit) #Source Host BW Stats
-        self.HT_Hp = af.incStatDB(limit=self.SessionLimit)#Source Host BW Stats
+        self.HT_jit = incStatDB(limit=self.HostLimit*self.HostLimit)#H-H Jitter Stats
+        self.HT_MI = incStatDB(limit=self.MAC_HostLimit)#MAC-IP relationships
+        self.HT_H = incStatDB(limit=self.HostLimit) #Source Host BW Stats
+        self.HT_Hp = incStatDB(limit=self.SessionLimit)#Source Host BW Stats
 
 
     def findDirection(self,IPtype,srcIP,dstIP,eth_src,eth_dst): #cpp: this is all given to you in the direction string of the instance (NO NEED FOR THIS FUNCTION)

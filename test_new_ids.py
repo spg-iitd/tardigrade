@@ -1,9 +1,35 @@
-# from kitsune.kit_model import KitModel
-# from kitsune.kit_model_keyed import KeyedKitModel
-# from kitsune.utils import *
-# import numpy as np
-# import time
+from tardigrade.kitsune import KitModel, KeyedKitModel
+from tardigrade.kitsune import evaluation_metrics
 
-from tardigrade.new_ids import CLASS
-# from tardigrade.kitsune import ......
-print(CLASS)
+# Test Kitsune
+
+model = KitModel()
+
+print("Training Kitsune model...")
+model.train_model("data/traffic_less.csv")
+
+
+print("Testing Kitsune model...")
+scores = model.test("data/traffic_less.csv")
+
+print(scores)
+
+
+
+# Test Kitsune Keyed
+
+model = KeyedKitModel()
+
+print("Training Kitsune keyed model...")
+model.train_model("data/traffic_less.csv")
+
+print("Testing Kitsune keyed model...")
+scores = model.test("data/traffic_less.csv")
+
+print(scores)
+
+
+
+
+
+

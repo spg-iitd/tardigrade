@@ -9,7 +9,7 @@ import subprocess
 #         cmd = "python setup.py build_ext --inplace"
 #         subprocess.call(cmd,shell=True)
 #Import dependencies
-import netStat as ns
+from .netStat import netStat as ns
 import csv
 import numpy as np
 print("Importing Scapy Library")

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import torch
 
-from kitsune import engine
-from kitsune.data import FileFormat, build_input_data_pipe
-from kitsune.models import Kitsune
+from .kitsune import engine
+from .kitsune.data import FileFormat, build_input_data_pipe
+from .kitsune.models import Kitsune
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

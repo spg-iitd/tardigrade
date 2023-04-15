@@ -3,7 +3,7 @@ from typing import Iterable
 import torch
 import torch.nn as nn
 
-from models import FeatureMapper, Kitsune
+from .models import FeatureMapper, Kitsune
 
 
 def build_feature_mapper(ds: Iterable[torch.Tensor],

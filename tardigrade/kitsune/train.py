@@ -4,9 +4,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from data import FileFormat, build_input_data_pipe
-from engine import build_feature_mapper, train_single_epoch
-from models import Kitsune
+from .data import FileFormat, build_input_data_pipe
+from .engine import build_feature_mapper, train_single_epoch
+from .models import Kitsune
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
