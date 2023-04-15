@@ -36,7 +36,7 @@ def train(
                     compression_rate=compression_rate)
     model.to(device)
 
-    optimizer = torch.optim.  SGD(model.parameters(), lr=1e-3, momentum=0.9)
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3, momentum=0.9)
 
     print("🦊 Training Kitsune ensemble ...")
     train_single_epoch(model=model, ds=dp, optimizer=optimizer, device=device)
