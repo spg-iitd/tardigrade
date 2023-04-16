@@ -1,7 +1,6 @@
 import math
 import numpy as np
 
-
 class incStat:
     def __init__(self, Lambda, ID, init_time=0, isTypeDiff=False):  # timestamp is creation time
         self.ID = ID
@@ -439,4 +438,3 @@ class incStatDB:
             elif W > cutoffWeight:
                 break
         return n
-
