@@ -1,5 +1,5 @@
 import torch
-import tardigrade.ids.kitsune.utils
+import ids.kitsune.utils
 import operator
 import torchdata.datapipes.iter as it
 
