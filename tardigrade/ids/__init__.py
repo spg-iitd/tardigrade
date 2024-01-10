@@ -4,5 +4,5 @@ from .awesome_ids import awesome_ids_model
 
 
 __all__ = [
-    "AwesomeIDS"
+    "KitsuneIDS"
     ]

@@ -27,6 +27,9 @@ def parse_kitsune(pcap_file, output_file_name, add_label=False, write_prob=1, co
         EOFError,ValueError,StopIteration: when EOF is reached. already handled
 
     """
+    # Modification after code review point 1 .
+    pcap_file = pcap_file + ".pcap"
+    output_file_name = pcap_file + ".csv"
     print("parsing:", pcap_file)
 
     nstat = None
@@ -119,3 +122,4 @@ def parse_kitsune(pcap_file, output_file_name, add_label=False, write_prob=1, co
     output_file.close()
     print("skipped:", skipped)
     print("written:", written)
+    return written
