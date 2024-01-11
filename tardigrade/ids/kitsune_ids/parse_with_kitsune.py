@@ -28,8 +28,7 @@ def parse_kitsune(pcap_file, output_file_name, add_label=False, write_prob=1, co
 
     """
     # Modification after code review point 1 .
-    pcap_file = pcap_file + ".pcap"
-    output_file_name = pcap_file + ".csv"
+    
     print("parsing:", pcap_file)
 
     nstat = None

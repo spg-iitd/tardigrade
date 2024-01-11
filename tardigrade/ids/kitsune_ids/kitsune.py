@@ -121,7 +121,7 @@ def calc_threshold(path, model_path, ignore_index=-1):
     threshold = min(threshold_max, threshold_std)
     return threshold
 
-def eval_kitsune(path, model_path, threshold=None, ignore_index=-1, out_image=None, meta_file=None, record_scores=False, y_true=None, record_prediction=False, load_prediction=False, plot_with_time=False):
+def eval_kitsune(path, model_path, threshold, ignore_index=-1, out_image=None, meta_file=None, record_scores=False, y_true=None, record_prediction=False, load_prediction=False, plot_with_time=False):
     """
     evaluates trained kitsune model on some traffic.
 

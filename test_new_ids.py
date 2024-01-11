@@ -8,13 +8,12 @@ benign_netstat = "tardigrade/ids/Data/[Normal]Google_Home_Mini.pkl"
  
 # Parsing of the data.
 model = KitsuneIDS()
-num_packets = model.feature_extractor(benign_file + ".pcap", benign_file + ".csv"
-              ,save_netstat=benign_netstat)
+num_packets = model.feature_extractor(benign_file , save_netstat=benign_netstat)
  
  
 # Training of the model.
  
-kitsune_path = "tardigrade/ids/kitsune_ids/models/kitsune.pkl"
+# kitsune_path = "tardigrade/ids/kitsune_ids/models/kitsune.pkl"
  
 train_params = {
     # the pcap, pcapng, or tsv file to process.
@@ -30,7 +29,7 @@ train_params = {
     # FMgrace+ADgrace<=num samples in normal traffic
     "ADgrace": np.floor(0.8 * num_packets),
     # directory of kitsune
-    "model_path": kitsune_path,
+    # "model_path": kitsune_path,
     # if normalize==true then kitsune does normalization automatically
     "normalize": True
 }
@@ -44,17 +43,15 @@ benign_traffic_plot = "benign.png"
  
  
 malicious_file = "tardigrade/ids/Data/Adv_ARP_Spoofing_Google-Nest-Mini_1"
-model.feature_extractor(malicious_file + ".pcap", malicious_file + ".csv",
-               save_netstat=benign_netstat)
+model.feature_extractor(malicious_file,save_netstat=benign_netstat)
  
 # malicious_file = "tardigrade/ids/Data/port_scan_attack_only"
-kitsune_threshold = "_kitsune_threshold.csv"
+# kitsune_threshold = "_kitsune_threshold.csv"
  
-benign_pos , kitsune_threshold = model.test_model(benign_file + ".csv" , kitsune_path,
-                          threshold=None, out_image=benign_traffic_plot,record_scores=True)
+# benign_pos , kitsune_threshold = model.test_model(out_image=benign_traffic_plot,record_scores=True)
  
-mal_pos, mal_threshold = model.test_model(malicious_file + ".csv" , kitsune_path,
-                          threshold=kitsune_threshold, out_image=malicious_traffic_plot,record_scores=True)
+mal_pos, mal_threshold = model.test_model(malicious_file , out_image=malicious_traffic_plot,record_scores=True)
+
 print("port scan examples over threshold:", mal_pos)
  
  
