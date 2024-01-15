@@ -60,8 +60,68 @@ def train_normal(params):
     with open(params["model_path"], "wb") as of:
         pickle.dump(K, of)
 
+# This method is added after the code review to solve the issue 9
+def calc_threshold(path, model_path, ignore_index=-1):
+    """
+    calculates threshold value for kitsune model
 
-def eval_kitsune(path, model_path, threshold=None, ignore_index=-1, out_image=None, meta_file=None, record_scores=False, y_true=None, record_prediction=False, load_prediction=False, plot_with_time=False):
+    Args:
+        path (string): path to traffic feature file.
+        model_path (string): path to trained kitsune model.
+        ignore_index (int): number of features to ignore at the start. Defaults to -1.
+
+    Returns:
+        float: threshold value
+
+    """
+    with open(model_path, "rb") as m:
+        kitsune = pickle.load(m)
+
+    counter = 0
+    input_file = open(path, "r")
+    input_file.readline()
+    rmse_array = []
+
+    feature_vector = input_file.readline()
+    while feature_vector is not '':
+
+        if counter < ignore_index:
+            feature_vector = input_file.readline()
+            counter += 1
+            continue
+
+        fv = feature_vector.rstrip().split(",")
+        fv = fv[:100]
+        fv = np.array(fv, dtype="float")
+
+        try:
+            if kitsune.input_precision is not None:
+                fv = squeeze_features(fv, kitsune.input_precision)
+        except AttributeError as e:
+            pass
+
+        rmse = kitsune.process(fv)
+
+        if rmse == 0:
+
+            rmse_array.append(1e-2)
+        else:
+
+            rmse_array.append(rmse)
+        counter += 1
+
+        feature_vector = input_file.readline()
+
+    # threshold is min(mean+3std, max)
+    benignSample = np.log(rmse_array)
+    mean = np.mean(benignSample)
+    std = np.std(benignSample)
+    threshold_std = np.exp(mean + 3 * std)
+    threshold_max = max(rmse_array)
+    threshold = min(threshold_max, threshold_std)
+    return threshold
+
+def eval_kitsune(path, model_path, threshold, ignore_index=-1, out_image=None, meta_file=None, record_scores=False, y_true=None, record_prediction=False, load_prediction=False, plot_with_time=False):
     """
     evaluates trained kitsune model on some traffic.
 
@@ -207,15 +267,18 @@ def eval_kitsune(path, model_path, threshold=None, ignore_index=-1, out_image=No
                 meta_row = meta.readline()
 
     # if no threshold, calculate threshold
-    if threshold == None:
-        # threshold is min(mean+3std, max)
-        benignSample = np.log(rmse_array)
-        mean = np.mean(benignSample)
-        std = np.std(benignSample)
-        threshold_std = np.exp(mean + 3 * std)
-        threshold_max = max(rmse_array)
-        threshold = min(threshold_max, threshold_std)
-        pos = (rmse_array > threshold).sum()
+    # Comented this out after the code review .
+                
+
+    # if threshold == None:
+    #     # threshold is min(mean+3std, max)
+    #     benignSample = np.log(rmse_array)
+    #     mean = np.mean(benignSample)
+    #     std = np.std(benignSample)
+    #     threshold_std = np.exp(mean + 3 * std)
+    #     threshold_max = max(rmse_array)
+    #     threshold = min(threshold_max, threshold_std)
+    #     pos = (rmse_array > threshold).sum()
 
     # record prediction scores/rmse
     if record_scores:
@@ -242,6 +305,86 @@ def eval_kitsune(path, model_path, threshold=None, ignore_index=-1, out_image=No
         roc_auc = metrics.auc(fpr, tpr)
     print("total packets:", len(rmse_array))
 
+    # if out_image is not None:
+    #     cmap = plt.get_cmap('Set3')
+    #     num_packets = len(rmse_array)
+    #     f, (ax1, ax2) = plt.subplots(
+    #         2, 1, constrained_layout=True, figsize=(10, 10), dpi=200)
+
+    #     if times and plot_with_time:
+    #         x_val = times
+    #         date_fmt = '%m/%d %H:%M:%S'
+
+    #         date_formatter = mdate.DateFormatter(date_fmt)
+    #         ax1.xaxis.set_major_formatter(date_formatter)
+
+    #         # tick every 4 hours
+    #         # print("asdfs")
+    #         ax1.xaxis.set_major_locator(ticker.MultipleLocator(0.85))
+
+    #         ax1.tick_params(labelrotation=90)
+    #         # f.autofmt_xdate()
+    #     else:
+    #         x_val = range(len(rmse_array))
+
+    #     if labels:
+    #         (unique, counts) = np.unique(labels, return_counts=True)
+    #         frequencies = np.asarray((unique, counts)).T
+    #         for i in frequencies:
+    #             label_map[i[0]] = "{} {}".format(label_map[i[0]], i[1])
+
+    #         scatter = ax1.scatter(x_val, rmse_array,
+    #                               s=1, c=labels, alpha=0.8, cmap=cmap)
+    #         # wrap legends
+    #         labels = [fill(l, 20) for l in label_map]
+
+    #         leg = ax1.legend(handles=scatter.legend_elements()[0], labels=labels, bbox_to_anchor=(1.01, 1),
+    #                          loc='upper left', borderaxespad=0.)
+    #         leg.get_lines()[0].set_alpha(1.)
+            
+    #     elif has_meta:
+    #         ax1.scatter(x_val, rmse_array, s=1, c='#00008B')
+    #     else:
+    #         ax1.scatter(x_val, rmse_array, s=1, alpha=0.8 , c = '#FF8C00')
+
+    #     # max_rmse=np.max(rmse_array)
+    #     # print(max_rmse)
+
+    #     ax1.axhline(y=threshold, color='r', linestyle='-')
+    #     ax1.set_yscale("log")
+    #     ax1.set_title("Anomaly Scores from Kitsune_{} Execution Phase".format(
+    #         model_path.split("/")[-1]))
+    #     ax1.set_ylabel("RMSE (log scaled)")
+    #     if has_meta:
+    #         ax1.set_xlabel(
+    #             "packet index \n packets over threshold {}".format(pos_mal + pos_craft))
+    #     else:
+    #         ax1.set_xlabel(
+    #             "packet index \n packets over threshold {}".format(pos))
+
+    #     if y_true is None:
+    #         ax2.plot(fpr, roc_t, 'b')
+    #         ax2.set_ylabel("threshold")
+    #         ax2.set_xlabel("false positive rate")
+    #     else:
+    #         ax2.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
+    #         ax2.set_title('AUC = %0.2f' % roc_auc)
+    #         ax2.set_ylabel("true positive rate")
+    #         ax2.set_xlabel("false positive rate")
+    #     # plt.tight_layout()
+    #     f.savefig(out_image)
+    #     print("plot path:", out_image)
+    #     plt.close()
+    # tbar.close()
+    # if has_meta:
+    #     return pos_mal, pos_craft, pos_ignore
+    # else:
+    #     if t is None:
+    #         return pos, threshold
+    #     else:
+    #         return pos, roc_auc
+
+    # From here I am adding my own code for plotting the graph
     if out_image is not None:
         cmap = plt.get_cmap('Set3')
         num_packets = len(rmse_array)
@@ -255,12 +398,12 @@ def eval_kitsune(path, model_path, threshold=None, ignore_index=-1, out_image=No
             date_formatter = mdate.DateFormatter(date_fmt)
             ax1.xaxis.set_major_formatter(date_formatter)
 
-            # tick every 4 hours
-            # print("asdfs")
+        # tick every 4 hours
+        # print("asdfs")
             ax1.xaxis.set_major_locator(ticker.MultipleLocator(0.85))
 
             ax1.tick_params(labelrotation=90)
-            # f.autofmt_xdate()
+        # f.autofmt_xdate()
         else:
             x_val = range(len(rmse_array))
 
@@ -271,47 +414,47 @@ def eval_kitsune(path, model_path, threshold=None, ignore_index=-1, out_image=No
                 label_map[i[0]] = "{} {}".format(label_map[i[0]], i[1])
 
             scatter = ax1.scatter(x_val, rmse_array,
-                                  s=1, c=labels, alpha=0.05, cmap=cmap)
-            # wrap legends
+                              s=1, c=labels, alpha=1.0, cmap=cmap)  # Set alpha to 1.0
+        # wrap legends
             labels = [fill(l, 20) for l in label_map]
 
             leg = ax1.legend(handles=scatter.legend_elements()[0], labels=labels, bbox_to_anchor=(1.01, 1),
                              loc='upper left', borderaxespad=0.)
-            leg.get_lines()[0].set_alpha(1.)
-            
-        elif has_meta:
-            ax1.scatter(x_val, rmse_array, s=1, c=colours)
-        else:
-            ax1.scatter(x_val, rmse_array, s=1, alpha=0.05)
+            leg.get_lines()[0].set_alpha(1.0)  # Set alpha to 1.0
 
-        # max_rmse=np.max(rmse_array)
-        # print(max_rmse)
+    elif has_meta:
+        ax1.scatter(x_val, rmse_array, s=1, c='#00008B')
+    else:
+        ax1.scatter(x_val, rmse_array, s=1, alpha=1.0, c='#FF8C00')  # Set alpha to 1.0
 
-        ax1.axhline(y=threshold, color='r', linestyle='-')
-        ax1.set_yscale("log")
-        ax1.set_title("Anomaly Scores from Kitsune_{} Execution Phase".format(
-            model_path.split("/")[-1]))
-        ax1.set_ylabel("RMSE (log scaled)")
-        if has_meta:
-            ax1.set_xlabel(
-                "packet index \n packets over threshold {}".format(pos_mal + pos_craft))
-        else:
-            ax1.set_xlabel(
-                "packet index \n packets over threshold {}".format(pos))
+    # max_rmse=np.max(rmse_array)
+    # print(max_rmse)
 
-        if y_true is None:
-            ax2.plot(fpr, roc_t, 'b')
-            ax2.set_ylabel("threshold")
-            ax2.set_xlabel("false positive rate")
-        else:
-            ax2.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
-            ax2.set_title('AUC = %0.2f' % roc_auc)
-            ax2.set_ylabel("true positive rate")
-            ax2.set_xlabel("false positive rate")
-        # plt.tight_layout()
-        f.savefig(out_image)
-        print("plot path:", out_image)
-        plt.close()
+    ax1.axhline(y=threshold, color='r', linestyle='-')
+    ax1.set_yscale("log")
+    ax1.set_title("Anomaly Scores from Kitsune_{} Execution Phase".format(
+        path.split("/")[-1]))
+    ax1.set_ylabel("RMSE (log scaled)")
+    if has_meta:
+        ax1.set_xlabel(
+            "packet index \n packets over threshold {}".format(pos_mal + pos_craft))
+    else:
+        ax1.set_xlabel(
+            "packet index \n packets over threshold {}".format(pos))
+
+    if y_true is None:
+        ax2.plot(fpr, roc_t, 'b')
+        ax2.set_ylabel("threshold")
+        ax2.set_xlabel("false positive rate")
+    else:
+        ax2.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
+        ax2.set_title('AUC = %0.2f' % roc_auc)
+        ax2.set_ylabel("true positive rate")
+        ax2.set_xlabel("false positive rate")
+    # plt.tight_layout()
+    f.savefig(out_image)
+    print("plot path:", out_image)
+    plt.close()
     tbar.close()
     if has_meta:
         return pos_mal, pos_craft, pos_ignore

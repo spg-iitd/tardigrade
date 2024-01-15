@@ -5,8 +5,8 @@ the public API that need to be exported
 from this package
 """
 
-from .awesome_ids_model import AwesomeIDS
+from .awesome_ids_model import KitsuneIDS
 
 __all__ = [
-    "AwesomeIDS"
+    "KitsuneIDS"
 ]
