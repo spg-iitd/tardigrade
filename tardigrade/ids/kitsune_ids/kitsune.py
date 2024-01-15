@@ -294,223 +294,142 @@ def eval_kitsune(path, model_path, threshold, ignore_index=-1, out_image=None, m
         pred_path = "_kitsune_prediction.csv"
         np.savetxt(pred_path, rmse_array > threshold, delimiter=",")
         print("kitsune prediction saved to", pred_path)
+    
+    print("port scan examples over threshold:", pos)
 
-    if y_true is None:
+    tbar.close()
 
-        fpr, tpr, roc_t = metrics.roc_curve(
-            [0 for i in range(len(rmse_array))], rmse_array, drop_intermediate=False)
-    else:
-        fpr, tpr, roc_t = metrics.roc_curve(
-            y_true, rmse_array, drop_intermediate=True)
-        roc_auc = metrics.auc(fpr, tpr)
-    print("total packets:", len(rmse_array))
+    return rmse_array 
 
-    # if out_image is not None:
-    #     cmap = plt.get_cmap('Set3')
-    #     num_packets = len(rmse_array)
-    #     f, (ax1, ax2) = plt.subplots(
-    #         2, 1, constrained_layout=True, figsize=(10, 10), dpi=200)
 
-    #     if times and plot_with_time:
-    #         x_val = times
-    #         date_fmt = '%m/%d %H:%M:%S'
-
-    #         date_formatter = mdate.DateFormatter(date_fmt)
-    #         ax1.xaxis.set_major_formatter(date_formatter)
-
-    #         # tick every 4 hours
-    #         # print("asdfs")
-    #         ax1.xaxis.set_major_locator(ticker.MultipleLocator(0.85))
-
-    #         ax1.tick_params(labelrotation=90)
-    #         # f.autofmt_xdate()
-    #     else:
-    #         x_val = range(len(rmse_array))
-
-    #     if labels:
-    #         (unique, counts) = np.unique(labels, return_counts=True)
-    #         frequencies = np.asarray((unique, counts)).T
-    #         for i in frequencies:
-    #             label_map[i[0]] = "{} {}".format(label_map[i[0]], i[1])
-
-    #         scatter = ax1.scatter(x_val, rmse_array,
-    #                               s=1, c=labels, alpha=0.8, cmap=cmap)
-    #         # wrap legends
-    #         labels = [fill(l, 20) for l in label_map]
-
-    #         leg = ax1.legend(handles=scatter.legend_elements()[0], labels=labels, bbox_to_anchor=(1.01, 1),
-    #                          loc='upper left', borderaxespad=0.)
-    #         leg.get_lines()[0].set_alpha(1.)
-            
-    #     elif has_meta:
-    #         ax1.scatter(x_val, rmse_array, s=1, c='#00008B')
-    #     else:
-    #         ax1.scatter(x_val, rmse_array, s=1, alpha=0.8 , c = '#FF8C00')
-
-    #     # max_rmse=np.max(rmse_array)
-    #     # print(max_rmse)
-
-    #     ax1.axhline(y=threshold, color='r', linestyle='-')
-    #     ax1.set_yscale("log")
-    #     ax1.set_title("Anomaly Scores from Kitsune_{} Execution Phase".format(
-    #         model_path.split("/")[-1]))
-    #     ax1.set_ylabel("RMSE (log scaled)")
-    #     if has_meta:
-    #         ax1.set_xlabel(
-    #             "packet index \n packets over threshold {}".format(pos_mal + pos_craft))
-    #     else:
-    #         ax1.set_xlabel(
-    #             "packet index \n packets over threshold {}".format(pos))
-
-    #     if y_true is None:
-    #         ax2.plot(fpr, roc_t, 'b')
-    #         ax2.set_ylabel("threshold")
-    #         ax2.set_xlabel("false positive rate")
-    #     else:
-    #         ax2.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
-    #         ax2.set_title('AUC = %0.2f' % roc_auc)
-    #         ax2.set_ylabel("true positive rate")
-    #         ax2.set_xlabel("false positive rate")
-    #     # plt.tight_layout()
-    #     f.savefig(out_image)
-    #     print("plot path:", out_image)
-    #     plt.close()
-    # tbar.close()
-    # if has_meta:
-    #     return pos_mal, pos_craft, pos_ignore
-    # else:
-    #     if t is None:
-    #         return pos, threshold
-    #     else:
-    #         return pos, roc_auc
-
-    # From here I am adding my own code for plotting the graph
+def plot_kitsune(rmse_array, threshold, out_image=None, meta_file=None, plot_with_time=False):
     if out_image is not None:
         cmap = plt.get_cmap('Set3')
-        num_packets = len(rmse_array)
-        f, (ax1, ax2) = plt.subplots(
-            2, 1, constrained_layout=True, figsize=(10, 10), dpi=200)
+        
+        f, ax1 = plt.subplots(constrained_layout=True, figsize=(10, 5), dpi=200)
 
-        if times and plot_with_time:
-            x_val = times
-            date_fmt = '%m/%d %H:%M:%S'
-
-            date_formatter = mdate.DateFormatter(date_fmt)
-            ax1.xaxis.set_major_formatter(date_formatter)
-
-        # tick every 4 hours
-        # print("asdfs")
+        if plot_with_time:
+            x_val = range(len(rmse_array))
             ax1.xaxis.set_major_locator(ticker.MultipleLocator(0.85))
-
             ax1.tick_params(labelrotation=90)
-        # f.autofmt_xdate()
         else:
             x_val = range(len(rmse_array))
 
-        if labels:
-            (unique, counts) = np.unique(labels, return_counts=True)
-            frequencies = np.asarray((unique, counts)).T
-            for i in frequencies:
-                label_map[i[0]] = "{} {}".format(label_map[i[0]], i[1])
-
-            scatter = ax1.scatter(x_val, rmse_array,
-                              s=1, c=labels, alpha=1.0, cmap=cmap)  # Set alpha to 1.0
-        # wrap legends
-            labels = [fill(l, 20) for l in label_map]
-
-            leg = ax1.legend(handles=scatter.legend_elements()[0], labels=labels, bbox_to_anchor=(1.01, 1),
-                             loc='upper left', borderaxespad=0.)
-            leg.get_lines()[0].set_alpha(1.0)  # Set alpha to 1.0
-
-    elif has_meta:
-        ax1.scatter(x_val, rmse_array, s=1, c='#00008B')
-    else:
-        ax1.scatter(x_val, rmse_array, s=1, alpha=1.0, c='#FF8C00')  # Set alpha to 1.0
-
-    # max_rmse=np.max(rmse_array)
-    # print(max_rmse)
-
-    ax1.axhline(y=threshold, color='r', linestyle='-')
-    ax1.set_yscale("log")
-    ax1.set_title("Anomaly Scores from Kitsune_{} Execution Phase".format(
-        path.split("/")[-1]))
-    ax1.set_ylabel("RMSE (log scaled)")
-    if has_meta:
-        ax1.set_xlabel(
-            "packet index \n packets over threshold {}".format(pos_mal + pos_craft))
-    else:
-        ax1.set_xlabel(
-            "packet index \n packets over threshold {}".format(pos))
-
-    if y_true is None:
-        ax2.plot(fpr, roc_t, 'b')
-        ax2.set_ylabel("threshold")
-        ax2.set_xlabel("false positive rate")
-    else:
-        ax2.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
-        ax2.set_title('AUC = %0.2f' % roc_auc)
-        ax2.set_ylabel("true positive rate")
-        ax2.set_xlabel("false positive rate")
-    # plt.tight_layout()
-    f.savefig(out_image)
-    print("plot path:", out_image)
-    plt.close()
-    tbar.close()
-    if has_meta:
-        return pos_mal, pos_craft, pos_ignore
-    else:
-        if t is None:
-            return pos, threshold
+        if meta_file:
+            ax1.scatter(x_val, rmse_array, s=1, c='#00008B')
         else:
-            return pos, roc_auc
+            ax1.scatter(x_val, rmse_array, s=1, alpha=1.0, c='#FF8C00')
+
+        ax1.axhline(y=threshold, color='r', linestyle='-')
+        ax1.set_yscale("log")
+        ax1.set_title("Anomaly Scores from Kitsune Execution Phase")
+        ax1.set_ylabel("RMSE (log scaled)")
+        ax1.set_xlabel("packet index")
+
+        f.savefig(out_image)
+        print("plot path:", out_image)
+        plt.close()
 
 
-def evaluation_metrics(scores_path, threshold_path):
-    # Calulate the F1 score for Model using ground labels
-    # Actual outputs from kitsune_score.csv
-    y_output = csv.reader(open(scores_path, 'r'))
-    y_output = list(y_output)
-    y_output = [float(i[0]) for i in y_output]
+
+
+# def evaluation_metrics(scores_path, threshold):
+
+#     # Calulate the F1 score for Model using ground labels
+#     # Actual outputs from kitsune_score.csv
+#     y_output = csv.reader(open(scores_path, 'r'))
+#     y_output = list(y_output)
+#     y_output = [float(i[0]) for i in y_output]
+
+#     # let ground labels be 0(benign) for all pkts
+#     y_true = np.ones(len(y_output))
+#     # print(y_true)
+
+#     # Threshold for F1 score
+#     # threshold = csv.reader(open(threshold_path, 'r'))
+#     # threshold = list(threshold)
+#     # threshold = float(threshold[0][0])
+
+#     # Predicted labels
+#     y_pred = np.array([0 if i > threshold else 1 for i in y_output])
+#     # print(y_pred)
+#     # 0 -> benign and 1 -> malicious
+#     tp = fp = tn = fn = 0
+#     for i in range(len(y_true)):
+#         if y_true[i] == 1 and y_pred[i] == 1:
+#             tp += 1
+#         elif y_true[i] == 0 and y_pred[i] == 1:
+#             fp += 1
+#         elif y_true[i] == 0 and y_pred[i] == 0:
+#             tn += 1
+#         else:
+#             fn += 1
+#     # print(metrics.confusion_matrix(y_true, y_pred).ravel())
+#     # m = metrics.confusion_matrix(y_true, y_pred)
+#     # tn = m[0][0]
+#     # fp = m[0][1]
+#     # fn = m[1][0]
+#     # tp = m[1][1]
+#     # tn, fp, fn, tp = metrics.confusion_matrix(y_true, y_pred).ravel()
+#     precision = tp/(tp+fp)
+#     recall = tp/(tp+fn)
+#     f1 = 2*(precision*recall)/(precision+recall)
+
+#     print("True Negatives: ", tn)
+#     print("False Positives: ", fp)
+#     print("False Negatives: ", fn)
+#     print("True Positives: ", tp)
+
+#     print("Precision: ", precision)
+#     print("Recall: ", recall)
+#     print("F1 score: ", f1)
+
+#     # Add the code to calculate the Confusion Matrix, ROC curve, and AUC score in this function
+
+
+def evaluation_metrics(rmse_array, threshold):
+    # Calculate the F1 score for Model using ground labels
+    # y_output = csv.reader(open(scores_path, 'r'))
+    y_output = list(rmse_array)
+    y_output = [float(i) for i in y_output]
 
     # let ground labels be 0(benign) for all pkts
     y_true = np.ones(len(y_output))
-    # print(y_true)
-
-    # Threshold for F1 score
-    threshold = csv.reader(open(threshold_path, 'r'))
-    threshold = list(threshold)
-    threshold = float(threshold[0][0])
 
     # Predicted labels
     y_pred = np.array([0 if i > threshold else 1 for i in y_output])
-    # print(y_pred)
-    # 0 -> benign and 1 -> malicious
-    tp = fp = tn = fn = 0
-    for i in range(len(y_true)):
-        if y_true[i] == 1 and y_pred[i] == 1:
-            tp += 1
-        elif y_true[i] == 0 and y_pred[i] == 1:
-            fp += 1
-        elif y_true[i] == 0 and y_pred[i] == 0:
-            tn += 1
-        else:
-            fn += 1
-    # print(metrics.confusion_matrix(y_true, y_pred).ravel())
-    # m = metrics.confusion_matrix(y_true, y_pred)
-    # tn = m[0][0]
-    # fp = m[0][1]
-    # fn = m[1][0]
-    # tp = m[1][1]
-    # tn, fp, fn, tp = metrics.confusion_matrix(y_true, y_pred).ravel()
-    precision = tp/(tp+fp)
-    recall = tp/(tp+fn)
-    f1 = 2*(precision*recall)/(precision+recall)
 
+    # Confusion Matrix
+    tn, fp, fn, tp = metrics.confusion_matrix(y_true, y_pred).ravel()
+    print("Confusion Matrix: ")
     print("True Negatives: ", tn)
     print("False Positives: ", fp)
     print("False Negatives: ", fn)
     print("True Positives: ", tp)
 
+    # Precision, Recall and F1 Score
+    precision = tp/(tp+fp)
+    recall = tp/(tp+fn)
+    f1 = 2*(precision*recall)/(precision+recall)
     print("Precision: ", precision)
     print("Recall: ", recall)
     print("F1 score: ", f1)
+
+    # ROC Curve and AUC Score
+    fpr, tpr, _ = metrics.roc_curve(y_true, y_pred)
+    print("False Positive Rate: ", fpr)
+    print("True Positive Rate: ", tpr)
+    auc_score = metrics.auc(fpr, tpr)
+    print("AUC Score: ", auc_score)
+
+    plt.figure()
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % auc_score)
+    plt.plot(fpr, tpr, color='navy', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.0])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc="lower right")
+    plt.savefig('roc_curve.png')
+    print("ROC curve saved as roc_curve.png in the current directory.")

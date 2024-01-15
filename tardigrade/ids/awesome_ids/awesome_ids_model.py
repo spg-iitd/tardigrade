@@ -6,6 +6,7 @@
 
 from ..kitsune_ids import parse_with_kitsune
 from ..kitsune_ids.kitsune import *
+import os 
 
 # class AwesomeIDS:
 #     """
@@ -23,6 +24,7 @@ class KitsuneIDS:
         self.model_path = "kitsune.pkl"
         # self.pcap_path = pcap_path
         self.threshold = None
+        self.out_image = None
 
 
     # This is for parsing the data and extracting the features from the data .
@@ -38,11 +40,50 @@ class KitsuneIDS:
             params['model_path'] = self.model_path
         train_normal(params) 
         self.threshold = calc_threshold(params['path'] , params['model_path'])
+        csv_path = params['path']
+        # Delete the file at csv_path
+        if(self.keep_csv == False) : 
+            if os.path.exists(csv_path):
+                os.remove(csv_path)
+                print(f"File {csv_path} has been deleted.")
+            else:
+                print(f"The file {csv_path} does not exist.")
+
         return self.threshold
 
+    # def test_model(self, pcap_path , model_p = None , ignore_index=-1, out_image=None, meta_file=None, record_scores=False, y_true=None, record_prediction=False, load_prediction=False, plot_with_time=False):
+    #     # change to solve the code review issue 4
+        
+    #     csv_path = pcap_path + ".csv" 
+    #     self.out_image = csv_path[:-4] + "_kitsune_rmse.png"
+    #     if model_p is None:
+    #         model_p = self.model_path
+    #     return eval_kitsune(csv_path,model_p ,self.threshold , ignore_index, out_image, meta_file, record_scores, y_true, record_prediction, load_prediction, plot_with_time)
+
     def test_model(self, pcap_path , model_p = None , ignore_index=-1, out_image=None, meta_file=None, record_scores=False, y_true=None, record_prediction=False, load_prediction=False, plot_with_time=False):
-        # change to solve the code review issue 4
+    # change to solve the code review issue 4
+    
         csv_path = pcap_path + ".csv" 
+        self.out_image = csv_path[:-4] + "_kitsune_rmse.png"
         if model_p is None:
             model_p = self.model_path
-        return eval_kitsune(csv_path,model_p ,self.threshold , ignore_index, out_image, meta_file, record_scores, y_true, record_prediction, load_prediction, plot_with_time)
+        result = eval_kitsune(csv_path,model_p ,self.threshold , ignore_index, out_image, meta_file, record_scores, y_true, record_prediction, load_prediction, plot_with_time)
+
+        # Delete the file at csv_path
+        if(self.keep_csv == False) : 
+            if os.path.exists(csv_path):
+                os.remove(csv_path)
+                print(f"File {csv_path} has been deleted.")
+            else:
+                print(f"The file {csv_path} does not exist.")
+                
+        return result
+
+
+    def get_plot(self, rmse_array, out_image=None, meta_file=None , plot_with_time=False):
+        if out_image == None:
+            out_image = self.out_image
+        return plot_kitsune(rmse_array, self.threshold, out_image, meta_file, plot_with_time)
+    
+    def eval_metrics(self, rmse_array):
+        return evaluation_metrics(rmse_array, self.threshold)
