@@ -8,7 +8,7 @@ benign_netstat = "tardigrade/ids/Data/[Normal]Google_Home_Mini.pkl"
  
 # Parsing of the data.
 model = KitsuneIDS()
-num_packets = model.feature_extractor(benign_file , save_netstat=benign_netstat)
+num_packets = model.feature_extractor(benign_file)
  
  
 # Training of the model.
@@ -43,16 +43,17 @@ benign_traffic_plot = "benign.png"
  
  
 malicious_file = "tardigrade/ids/Data/Adv_ARP_Spoofing_Google-Nest-Mini_1"
-model.feature_extractor(malicious_file,save_netstat=benign_netstat)
+model.feature_extractor(malicious_file)
  
 # malicious_file = "tardigrade/ids/Data/port_scan_attack_only"
 # kitsune_threshold = "_kitsune_threshold.csv"
  
 # benign_pos , kitsune_threshold = model.test_model(out_image=benign_traffic_plot,record_scores=True)
  
-mal_pos, mal_threshold = model.test_model(malicious_file , out_image=malicious_traffic_plot,record_scores=True)
+score_array = model.test_model(malicious_file , out_image=malicious_traffic_plot,record_scores=True)
 
-print("port scan examples over threshold:", mal_pos)
+model.get_plot(score_array)
+model.eval_metrics(score_array)
  
  
 
