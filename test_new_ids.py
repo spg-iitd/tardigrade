@@ -1,14 +1,19 @@
 import os
+import pickle
 from tardigrade.ids import KitsuneIDS
 from tardigrade.utils.metrics import *
 import numpy as np
 
 benign_file = "./utils/Data/weekday"
-benign_netstat = "./utils/Data/[Normal]Google_Home_Mini.pkl"
- 
+# benign_netstat = "./utils/Data/[Normal]Google_Home_Mini.pkl"
+
+infile = open("adv_sizes", "rb")
+params = pickle.load(infile)
+infile.close()
+
 # Parsing of the data.
 model = KitsuneIDS()
-num_packets = model.feature_extractor(benign_file)
+num_packets = model.feature_extractor(params["adv_sizes"], benign_file)
  
  
 # Training of the model.
@@ -34,21 +39,13 @@ train_params = {
     "normalize": True
 }
  
-model.train_model(train_params)
+threshold = model.train_model(train_params)
+print(threshold)
+# from tardigrade.datasets import UQIoTDataset, CICFlowMeterDataset
+# from tardigrade.ids import KitsuneIDS, FeCoIDs, DecisionTreeIDS
 
-malicious_traffic_plot = "port_scan.png"
-benign_traffic_plot = "benign.png"
- 
- 
-malicious_file = "utils/Data/Adv_ARP_Spoofing_Google-Nest-Mini_1"
-model.feature_extractor(malicious_file)
- 
-# malicious_file = "tardigrade/ids/Data/port_scan_attack_only"
-# kitsune_threshold = "_kitsune_threshold.csv"
- 
-# benign_pos , kitsune_threshold = model.test_model(out_image=benign_traffic_plot,record_scores=True)
- 
-score_array = model.test_model(malicious_file , out_image=malicious_traffic_plot,record_scores=True)
-
-model.get_plot(score_array)
-model.eval_metrics(score_array)
+# IDS:
+# Step 1: Model creation
+# Step 2: Model training
+# Step 3: Evaluation
+# Step 4: Plotting and other extra things

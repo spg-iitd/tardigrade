@@ -17,10 +17,10 @@ class KitsuneIDS:
 
 
     # This is for parsing the data and extracting the features from the data .
-    def feature_extractor (self,pcap_path , add_label=False, write_prob=1, count=float('Inf'), parse_type="scapy", netstat_path=None, save_netstat=None, add_proto=False, add_time=False, netstat_log_file=None):
+    def feature_extractor (self, adv_sizes, pcap_path, add_label=False, write_prob=1, count=float('Inf'), parse_type="scapy", netstat_path=None, save_netstat=None, add_proto=False, add_time=False, netstat_log_file=None):
         pcap_file = pcap_path + ".pcap"
         output_file_name = pcap_path + ".csv"
-        return parse_with_kitsune.parse_kitsune(pcap_file, output_file_name, add_label, write_prob, count, parse_type, netstat_path, save_netstat, add_proto, add_time, netstat_log_file)
+        return parse_with_kitsune.parse_kitsune(adv_sizes, pcap_file, output_file_name, add_label, write_prob, count, parse_type, netstat_path, save_netstat, add_proto, add_time, netstat_log_file)
 
     # make a function that would train the model and then save the model in a file
     def train_model(self, params):
@@ -41,8 +41,8 @@ class KitsuneIDS:
         return self.threshold
 
     def test_model(self, pcap_path , model_p = None , ignore_index=-1, out_image=None, meta_file=None, record_scores=False, y_true=None, record_prediction=False, load_prediction=False, plot_with_time=False):
-        csv_path = pcap_path + ".csv" 
-        self.out_image = csv_path[:-4] + "_kitsune_rmse.png"
+        csv_path = pcap_path + ".csv"
+        self.out_image = pcap_path.split("/")[-1] + "_kitsune_rmse.png"
         if model_p is None:
             model_p = self.model_path
         result = eval_kitsune(csv_path,model_p ,self.threshold , ignore_index, out_image, meta_file, record_scores, y_true, record_prediction, load_prediction, plot_with_time)

@@ -9,7 +9,7 @@ np.set_printoptions(suppress=True,
                     formatter={'float_kind': '{:f}'.format})
 
 
-def parse_kitsune(pcap_file, output_file_name, add_label=False, write_prob=1, count=float('Inf'), parse_type="scapy", netstat_path=None, save_netstat=None, add_proto=False, add_time=False, netstat_log_file=None):
+def parse_kitsune(adv_sizes, pcap_file, output_file_name, add_label=False, write_prob=1, count=float('Inf'), parse_type="scapy", netstat_path=None, save_netstat=None, add_proto=False, add_time=False, netstat_log_file=None):
     """Short summary.
 
     Args:
@@ -37,7 +37,7 @@ def parse_kitsune(pcap_file, output_file_name, add_label=False, write_prob=1, co
         with open(netstat_path, "rb") as m:
             nstat = pickle.load(m)
 
-    feature_extractor = FE(pcap_file, parse_type=parse_type,
+    feature_extractor = FE(adv_sizes, pcap_file, parse_type=parse_type,
                            nstat=nstat, log_file=netstat_log_file)
     # temp=open("tmp.txt","w")
     headers = feature_extractor.nstat.getNetStatHeaders()
