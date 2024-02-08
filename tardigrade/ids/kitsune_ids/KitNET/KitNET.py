@@ -55,6 +55,8 @@ class KitNET:
         # incremental feature cluatering for the feature mapping process
         self.FM = CC.corClust(self.n)
 
+        self.res = []
+
     # If FM_grace_period+AM_grace_period has passed, then this function executes KitNET on x. Otherwise, this function learns from x.
     # x: a numpy array of length n
     # Note: KitNET automatically performs 0-1 normalization on all attributes.
@@ -98,7 +100,7 @@ class KitNET:
                 xi = x[self.v[a]]
                 S_l1[a] = self.ensembleLayer[a].train(xi)
             # OutputLayer
-            self.outputLayer.train(S_l1)
+            self.res.append(self.outputLayer.train(S_l1))
             if self.n_trained == self.AD_grace_period + self.FM_grace_period:
                 pass
                 print("Feature-Mapper: execute-mode, Anomaly-Detector: execute-mode")

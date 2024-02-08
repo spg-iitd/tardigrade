@@ -85,5 +85,5 @@ class KitsuneIDS:
             out_image = self.out_image
         return plot_kitsune(rmse_array, self.threshold, out_image, meta_file, plot_with_time)
     
-    def eval_metrics(self, rmse_array):
-        return evaluation_metrics(rmse_array, self.threshold)
+    def eval_metrics(self, rmse_array,separation=None):
+        return evaluation_metrics(rmse_array, self.threshold,separation)
