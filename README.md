@@ -1,6 +1,7 @@
 # Tarda - An Intrusion Detection System Library
 
-Tarda is a library for the collection of Intrusion Detection Systems (IDS) and robust-IDS, along with tools for evaluating them.
+Tarda is a library for the collection of Intrusion 
+Detection Systems (IDS) and robust-IDS, along with tools for evaluating them.
 
 ## Installation
 

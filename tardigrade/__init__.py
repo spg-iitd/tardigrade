@@ -1,9 +1,5 @@
-# from .ids.kitsune import KitModel, KeyedKitModel
-from .ids.awesome_ids import KitsuneIDS
+from tardigrade import ids
 
 __all__ = [
-    "KitsuneIDS",
-    # "KitModel",
-    # "KeyedKitModel",
-    "evaluation_metrics"
+    "ids",
     ]
