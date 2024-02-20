@@ -20,8 +20,8 @@ from scapy.layers.inet import TCP
 # If wireshark is installed (tshark) it is used to parse (it's faster), otherwise, scapy is used (much slower).
 # If wireshark is used then a tsv file (parsed version of the pcap) will be made -which you can use as your input next time
 class FE:
-    def __init__(self, adv_sizes, file_path, parse_type, limit=None, nstat=None, dummy_nstat=None, force_tsv=True, log_file=None):
-        self.adv_sizes = iter(adv_sizes)
+    def __init__(self, file_path, parse_type, limit=None, nstat=None, dummy_nstat=None, force_tsv=True, log_file=None):
+        # self.adv_sizes = iter(adv_sizes)
         self.path = file_path
         self.limit = limit
         self.parse_type = None #unknown
@@ -134,8 +134,6 @@ class FE:
         # only process IP packets,
         if not (packet.haslayer(IP) or packet.haslayer(IPv6) or packet.haslayer(ARP)):
             return [], packet
-        # packet.show2()
-        # print(dir(packet))
 
         timestamp = packet.time
         framelen = len(packet)

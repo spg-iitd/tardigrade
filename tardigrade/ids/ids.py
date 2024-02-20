@@ -11,6 +11,7 @@ from typing import Any, Dict
 logger = logging.getLogger(__name__)
 
 class BaseIDS():
+    # TODO: Add nn.Module as parent class
     """
     The abstract base class for all IDSs.
     """
