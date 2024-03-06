@@ -81,7 +81,7 @@ def eval_feature_squeeze(path, model_path, out_name, precision, threshold=None):
 
         #remove label if there is one
 
-        fv = fv[:100]
+        fv = fv[:102]
 
         fv = np.array(fv, dtype="float")
 

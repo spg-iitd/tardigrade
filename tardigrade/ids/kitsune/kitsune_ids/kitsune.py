@@ -34,7 +34,7 @@ def train_normal(params):
 
     """
     # Build Kitsune
-    K = KitNET(100, params["maxAE"], params["FMgrace"],
+    K = KitNET(params["num_features"], params["maxAE"], params["FMgrace"],
                params["ADgrace"], 0.1, 0.75, normalize=params["normalize"])
 
     input_file = open(params["path"], "r")
@@ -48,7 +48,7 @@ def train_normal(params):
         if not feature_vector:
             break
         fv = feature_vector.rstrip().split(",")
-        fv = fv[:100]
+        fv = fv[:params["num_features"]]
         fv = np.array(fv, dtype="float")
         K.process(fv)
         count += 1
@@ -91,7 +91,7 @@ def calc_threshold(path, model_path, ignore_index=-1):
             continue
 
         fv = feature_vector.rstrip().split(",")
-        fv = fv[:100]
+        fv = fv[:102]
         fv = np.array(fv, dtype="float")
 
         try:
@@ -214,7 +214,7 @@ def eval_kitsune(path, model_path, threshold, ignore_index=-1, out_image=None, m
 
                 labels.append(label_map.index(label))
                 times.append(mdate.epoch2num(float(fv[-1])) + 1)
-                fv = fv[:100]
+                fv = fv[:102]
 
             fv = np.array(fv, dtype="float")
 

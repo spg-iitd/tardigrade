@@ -6,8 +6,9 @@ import numpy as np
 
 benign_file = "./utils/Data/weekday_20k"
 
-model = KitsuneIDS(keep_csv=False)
-num_packets = model.feature_extractor(benign_file, add_label=True)
+model = KitsuneIDS(keep_csv=True)
+# num_packets = model.feature_extractor(benign_file, add_label=True)
+num_packets = 20000
 
 train_params = {
     # the pcap, pcapng, or tsv file to process.
@@ -25,7 +26,8 @@ train_params = {
     # directory of kitsune
     # "model_path": kitsune_path,
     # if normalize==true then kitsune does normalization automatically
-    "normalize": True
+    "normalize": True,
+    "num_features": 102
 }
  
 threshold = model.train_model(train_params)
